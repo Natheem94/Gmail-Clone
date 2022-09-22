@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Box from '@mui/material/Box';
+import Box from "@mui/material/Box";
+import Snackbar from '@mui/material/Snackbar';
 import * as yup from "yup";
 
 function SignupForm() {
   let Navigate = useNavigate();
   const [showpassword, setShowpassword] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
   let HandleShowPassword = () => {
     setShowpassword((current) => !current);
   };
@@ -18,7 +21,20 @@ function SignupForm() {
     await axios
       .post("http://localhost:8000/adduser", data)
       .then((response) => {
-        Navigate("/login");
+        console.log(response.data);
+        if (response.data.statuscode === 200) {
+          setMessage(response.data.message)
+          setOpen(true)
+          setTimeout(() => {
+            Navigate("/login");
+          }, 2000);
+        } else if (response.data.statuscode === 400) {
+          setMessage(response.data.message)
+          setOpen(true)
+          setTimeout(() => {
+            Navigate("/login");
+          }, 2000);
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -49,21 +65,31 @@ function SignupForm() {
       handleSubmit(values);
     },
   });
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   return (
     <>
       <Form onSubmit={formik.handleSubmit} className="SignupForm p-5">
-      <Box className="mx-auto"
-      sx={{
-        width: 800,
-        height: 200,
-        backgroundColor: 'primary.dark',
-        '&:hover': {
-          backgroundColor: 'primary.main',
-          opacity: [0.9, 0.8, 0.7],
-        },
-      }}
-    >Signup with your Gmail accout</Box>
+        <Box
+          className="mx-auto"
+          sx={{
+            width: 800,
+            height: 200,
+            backgroundColor: "primary.dark",
+            "&:hover": {
+              backgroundColor: "primary.main",
+              opacity: [0.9, 0.8, 0.7],
+            },
+          }}
+        >
+          Signup with your Gmail accout
+        </Box>
         <Form.Group className="mb-3">
           <Form.Label>Name</Form.Label>
           <Form.Control
@@ -150,6 +176,12 @@ function SignupForm() {
           Submit
         </Button>
       </Form>
+      <Snackbar
+        open={open}
+        autoHideDuration={2000}
+        onClose={handleClose}
+        message={message}
+      />
     </>
   );
 }

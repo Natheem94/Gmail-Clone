@@ -6,8 +6,10 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 
+
 function LoginForm() {
   const Navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showpassword, setShowpassword] = useState(false);
@@ -23,18 +25,19 @@ function LoginForm() {
       .then((response) => {
         console.log(response.data);
         if (response.data.statusCode === 200) {
-          window.sessionStorage.setItem('token',response.data.token)
-          Navigate("/mail");
+          window.sessionStorage.setItem("token", response.data.token);
+          Navigate("/mail",{state:{name:response.data.name}});
         } else {
           setShow(false);
-          setMessage(response.data.message)
+          setMessage(response.data.message);
         }
       })
       .catch((error) => {
         setShow(false);
-        setMessage(error)
+        setMessage(error);
       });
   };
+
   return (
     <>
       <div id="loginform" className="background">
@@ -70,14 +73,11 @@ function LoginForm() {
           >
             Login
           </Button>
-          <Button
-            variant="info"
-            className="ms-2"
-          >
-            <Link to={'/signup'}>Signup</Link>            
+          <Button variant="info" className="ms-2">
+            <Link to={"/signup"}>Signup</Link>
           </Button>
-          <br/>
-          <br/>
+          <br />
+          <br />
           {show ? (
             <></>
           ) : (

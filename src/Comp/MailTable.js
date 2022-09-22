@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
+import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import Nav from "react-bootstrap/Nav";
+import Container from "react-bootstrap/Container";
+import Navbar from "react-bootstrap/Navbar";
+import Badge from "react-bootstrap/Badge";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getTouchRippleUtilityClass } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import MarkunreadIcon from "@mui/icons-material/Markunread";
 
 function MailTable() {
   let Navigate = useNavigate(); //Inizi
+  let Location = useLocation(); //
+  let [outboxTable, setOutboxTable] = useState([]);
 
   let validate = () => {
     if (window.sessionStorage.getItem("token")) {
@@ -20,13 +29,22 @@ function MailTable() {
   };
 
   useEffect(() => {
-    function call() {
+    let callfunc = async () => {
       if (validate()) {
+        let token = window.sessionStorage.getItem("token");
+        let outboxMail = await axios.get("http://localhost:8000/users/outbox", {
+          headers: { authorization: token },
+        });
+        console.log(outboxMail);
+        if (outboxMail.data.statuscode === 200) {
+          setOutboxTable(outboxMail.data.data);
+        } else Navigate("/login");
       } else Navigate("/login");
-    }
-    call();
+    };
+    callfunc();
   }, []);
 
+  const name = Location.state.name;
   const [message, setMessage] = useState("");
   const [alartToggle, setAlartToggle] = useState(getTouchRippleUtilityClass);
 
@@ -48,7 +66,7 @@ function MailTable() {
 
   let HandleSubmit = async () => {
     setTimeout(() => {
-        handleClose();        
+      handleClose();
     }, 2000);
     if (validate()) {
       let token = window.sessionStorage.getItem("token");
@@ -62,18 +80,13 @@ function MailTable() {
             setAlartToggle(true);
             setMessage(response.data.message);
             setOpen(true);
-          }
-          else if (response.data.statuscode === 204){
-            setAlartToggle(false);
-            setMessage(response.data.message);
-            setOpen(true);
-            setTimeout(() => {
-                Navigate("/login");
-            }, 3000);
+          } else if (response.data.statuscode === 204) {
+            alert(response.data.message);
+            Navigate("/login");
           }
         })
         .catch((error) => {
-          setAlartToggle(true);
+          setAlartToggle(false);
           setMessage(error);
           setOpen(true);
         });
@@ -81,10 +94,72 @@ function MailTable() {
   };
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
-        Launch demo modal
-      </Button>
-      <Snackbar open={open} autoHideDuration={3000} onClose={SnackbarhandleClose}>
+      <Navbar bg="primary" variant="dark">
+        <Container>
+          <MarkunreadIcon fontSize="large" />
+          <Navbar.Brand onClick={() => Navigate("/login")}>
+            Gmail-Clone
+          </Navbar.Brand>
+          <Navbar.Collapse className="justify-content-end">
+            <Navbar.Text>
+              Signed in as:{" "}
+              <span className="text-uppercase fs-6 fw-bold">{name}</span>
+            </Navbar.Text>
+          </Navbar.Collapse>
+          <LogoutIcon
+            className="my-auto mx-4 "
+            onClick={() => {
+              window.sessionStorage.removeItem("token");
+              Navigate("/login");
+            }}
+          />
+        </Container>
+      </Navbar>
+      <div className="row justify-content-start mt-2">
+        <div className="col-1">
+          <Nav className="flex-column">
+            <Button className="mx-2" variant="primary" onClick={handleShow}>
+              Compose
+            </Button>
+            <Nav.Item className="text-center fw-semibold mt-2">
+              Sent
+              <Badge bg="info" style={{ color: "black" }}>
+                {outboxTable.length}
+              </Badge>
+            </Nav.Item>
+            <Nav.Item className="text-center fw-semibold mt-2">Inbox</Nav.Item>
+            <Nav.Item className="text-center fw-semibold mt-2">Draft</Nav.Item>
+          </Nav>
+        </div>
+        <div className="col-11">
+          <Table striped bordered hover size="sm">
+            <thead>
+              <tr>
+                <th>To</th>
+                <th>Subject</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {outboxTable.map((e) => {
+                return (
+                  <tr key={e._id}>
+                    <td>{e.to}</td>
+                    <td>{e.subject}</td>
+                    <td>{e.body}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </div>
+      </div>
+
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={SnackbarhandleClose}
+      >
         <Alert
           onClose={SnackbarhandleClose}
           severity={alartToggle ? "success" : "error"}
@@ -95,7 +170,7 @@ function MailTable() {
       </Snackbar>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title>Send Mail</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
