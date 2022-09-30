@@ -19,7 +19,7 @@ function SignupForm() {
   let handleSubmit = async (data) => {
     delete data.conformpassword;
     await axios
-      .post("http://localhost:8000/adduser", data)
+      .post("https://gmailclone09.herokuapp.com/adduser", data)
       .then((response) => {
         console.log(response.data);
         if (response.data.statuscode === 200) {
@@ -77,7 +77,7 @@ function SignupForm() {
     <>
       <Form onSubmit={formik.handleSubmit} className="SignupForm p-5">
         <Box
-          className="mx-auto"
+          className="mx-auto d-flex align-items-center justify-content-center display-4 fw-semibold"
           sx={{
             width: 800,
             height: 200,

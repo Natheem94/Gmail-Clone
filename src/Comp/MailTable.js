@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import axios from "axios";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Badge from "react-bootstrap/Badge";
-import { useNavigate, useLocation } from "react-router-dom";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import { getTouchRippleUtilityClass } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
@@ -27,20 +29,20 @@ function MailTable() {
       return false;
     }
   };
+  let callfunc = async () => {
+    if (validate()) {
+      let token = window.sessionStorage.getItem("token");
+      let outboxMail = await axios.get("https://gmailclone09.herokuapp.com/users/outbox", {
+        headers: { authorization: token },
+      });
+      console.log(outboxMail);
+      if (outboxMail.data.statuscode === 200) {
+        setOutboxTable(outboxMail.data.data);
+      } else Navigate("/login");
+    } else Navigate("/login");
+  };
 
   useEffect(() => {
-    let callfunc = async () => {
-      if (validate()) {
-        let token = window.sessionStorage.getItem("token");
-        let outboxMail = await axios.get("http://localhost:8000/users/outbox", {
-          headers: { authorization: token },
-        });
-        console.log(outboxMail);
-        if (outboxMail.data.statuscode === 200) {
-          setOutboxTable(outboxMail.data.data);
-        } else Navigate("/login");
-      } else Navigate("/login");
-    };
     callfunc();
   }, []);
 
@@ -67,12 +69,13 @@ function MailTable() {
   let HandleSubmit = async () => {
     setTimeout(() => {
       handleClose();
+      callfunc();
     }, 2000);
     if (validate()) {
       let token = window.sessionStorage.getItem("token");
       let data = { to, subject, body };
       await axios
-        .post("http://localhost:8000/users/sendemail", data, {
+        .post("https://gmailclone09.herokuapp.com/users/sendemail", data, {
           headers: { authorization: token },
         })
         .then((response) => {
@@ -92,11 +95,18 @@ function MailTable() {
         });
     } else Navigate("/login");
   };
+
+  const renderTooltip = (props) => (
+    <Tooltip id="button-tooltip" {...props}>
+      Logout
+    </Tooltip>
+  );
   return (
     <>
       <Navbar bg="primary" variant="dark">
         <Container>
           <MarkunreadIcon fontSize="large" />
+          &nbsp;
           <Navbar.Brand onClick={() => Navigate("/login")}>
             Gmail-Clone
           </Navbar.Brand>
@@ -106,13 +116,19 @@ function MailTable() {
               <span className="text-uppercase fs-6 fw-bold">{name}</span>
             </Navbar.Text>
           </Navbar.Collapse>
-          <LogoutIcon
-            className="my-auto mx-4 "
-            onClick={() => {
-              window.sessionStorage.removeItem("token");
-              Navigate("/login");
-            }}
-          />
+          <OverlayTrigger
+            placement="right"
+            delay={{ show: 250, hide: 400 }}
+            overlay={renderTooltip}
+          >
+            <LogoutIcon
+              className="my-auto mx-4 "
+              onClick={() => {
+                window.sessionStorage.removeItem("token");
+                Navigate("/login");
+              }}
+            />
+          </OverlayTrigger>
         </Container>
       </Navbar>
       <div className="row justify-content-start mt-2">
@@ -132,10 +148,16 @@ function MailTable() {
           </Nav>
         </div>
         <div className="col-11">
-          <Table striped bordered hover size="sm">
+          <Table
+            striped
+            bordered
+            hover
+            size="sm"
+            className="table-bordered border-primary"
+          >
             <thead>
               <tr>
-                <th>To</th>
+                <th >To</th>
                 <th>Subject</th>
                 <th>Message</th>
               </tr>
