@@ -39,7 +39,7 @@ function MailTable() {
 
   useEffect(() => {
     callfunc();
-  }, []);
+  }, [headers]);
 
   const name = Location.state.name;
   const [message, setMessage] = useState("");
