@@ -30,7 +30,6 @@ function MailTable() {
       let outboxMail = await axios.get("https://gmailclone09.herokuapp.com/users/outbox", {
         headers: { authorization: token },
       });
-      console.log(outboxMail);
       if (outboxMail.data.statuscode === 200) {
         setOutboxTable(outboxMail.data.data);
       } else Navigate("/login");
@@ -39,7 +38,7 @@ function MailTable() {
 
   useEffect(() => {
     callfunc();
-  }, [headers]);
+  });
 
   const name = Location.state.name;
   const [message, setMessage] = useState("");

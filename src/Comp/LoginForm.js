@@ -26,7 +26,6 @@ function LoginForm() {
     await axios
       .post("https://gmailclone09.herokuapp.com/users/login", { email, password })
       .then((response) => {
-        console.log(response.data);
         if (response.data.statusCode === 200) {
           window.sessionStorage.setItem("token", response.data.token);
           Navigate("/mail", { state: { name: response.data.name } });

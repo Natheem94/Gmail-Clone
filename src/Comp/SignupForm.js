@@ -21,7 +21,6 @@ function SignupForm() {
     await axios
       .post("https://gmailclone09.herokuapp.com/adduser", data)
       .then((response) => {
-        console.log(response.data);
         if (response.data.statuscode === 200) {
           setMessage(response.data.message)
           setOpen(true)
