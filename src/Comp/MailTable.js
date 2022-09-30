@@ -17,13 +17,7 @@ import { getTouchRippleUtilityClass } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
 
-const validate = () => {
-  if (window.sessionStorage.getItem("token")) {
-    return true;
-  } else {
-    return false;
-  }
-};
+import { validate } from "../Common/common";
 
 function MailTable() {
   let Navigate = useNavigate(); //Inizi
