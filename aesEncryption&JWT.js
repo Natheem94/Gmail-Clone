@@ -14,7 +14,7 @@ const aesDesryptPassword = async (password) => {
 }
 
 const CreateToken = async ({email})=>{
-    return jwt.sign({ email }, secretKey, { expiresIn: '4m' });
+    return jwt.sign({ email }, secretKey, { expiresIn: '5m' });
 }
 
 const VerifyToken = async (token) => {

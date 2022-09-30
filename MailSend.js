@@ -20,7 +20,7 @@ const SendEmail = async (transporter, data) => {
       from: `${transporter.options.auth.user}`,
       to: `${data.to}`, // sender addresslist of receivers
       subject: `${data.subject}`, // Subject line
-      text: `${data.message}`, // plain text body
+      text: `${data.body}`, // plain text body
       // html: "<b>Hello world?</b>", // html body
     },
     (err, success) => {
