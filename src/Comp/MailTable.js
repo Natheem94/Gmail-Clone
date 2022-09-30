@@ -22,7 +22,7 @@ function MailTable() {
   let Location = useLocation(); //
   let [outboxTable, setOutboxTable] = useState([]);
 
-  let validate = () => {
+  const validate = () => {
     if (window.sessionStorage.getItem("token")) {
       return true;
     } else {
@@ -44,7 +44,7 @@ function MailTable() {
 
   useEffect(() => {
     callfunc();
-  }, [callfunc]);
+  }, []);
 
   const name = Location.state.name;
   const [message, setMessage] = useState("");
