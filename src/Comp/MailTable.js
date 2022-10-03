@@ -16,7 +16,6 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { getTouchRippleUtilityClass } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MarkunreadIcon from "@mui/icons-material/Markunread";
-
 import { validate } from "../Common/common";
 
 function MailTable() {
@@ -38,7 +37,7 @@ function MailTable() {
 
   useEffect(() => {
     callfunc();
-  });
+  }, []);
 
   const name = Location.state.name;
   const [message, setMessage] = useState("");
